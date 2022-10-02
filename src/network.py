@@ -22,17 +22,14 @@ class Network:
 
         return result
 
-    def backprop(self, z):
-        self.errors.append(z)
-        # print(z)
-        for w,r in zip(reversed(self.weights[1:]), self.zs):
-            z = np.dot(z, np.transpose(w))
-            error = r*(1-r)*z
+    def backprop(self, result, expected_neurons):
+        error = result*(1-result)*(expected_neurons-result)
+        self.errors.append(error)
+        for w,r,e in zip(reversed(self.weights[1:]), reversed(self.zs[1:]), self.errors):
+            print(w.shape, r.shape, e.shape)
+            print(np.dot(w, np.transpose(e)).shape)
+            error = r*(1-r)*np.dot(w, np.transpose(e))
             self.errors.append(error)
-
-        for w,r,e in zip(self.weights, self.zs,reversed(self.errors)):
-            w = w + self.lr*r*e
-            # print(w.shape)
 
 def sigmoid(z):
     return 1.0/(1.0+np.exp(-z))
