@@ -12,21 +12,24 @@ mapping = {
     'PATH': 5,
     'GRASS': 6
 }
-data = pd.read_csv('../data/segmentation.data', ',')
+data = pd.read_csv('../data/segmentation.test', ',')
 data['LABEL'] = [mapping[item] for item in data['LABEL']]
 
 nn = Network([20, 13, 6])
 
 np_data = data.to_numpy()
-for sample in np_data[:1]:
-    result = nn.feedforward(sample)
-    z = []
-    # DEBUG
-    for output in result:
-        max_id = np.argmax(output)
-        z.append(output[max_id])
+positives = 0
+all_cases = 0
+for epoch in range(3000):
+    for sample in np_data:
+        result = nn.feedforward(sample)
+        prediction = np.argmax(result)
+        expected = sample[0].astype(int)
+        error = result*(1-result)*(expected-result)
+        nn.backprop(error)
+        if prediction == expected:
+            positives += 1
+        all_cases += 1
 
-    max = np.unravel_index(result.argmax(), result.shape)
-    z = np.array(z)
-    error = z*(1-z)*(sample[0].astype(int)-z)
-    nn.backprop(error)
+print("Positives", positives)
+print("All cases", all_cases)
