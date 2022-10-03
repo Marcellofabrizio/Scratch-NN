@@ -20,7 +20,7 @@ nn = Network([20, 13, 6])
 np_data = data.to_numpy()
 positives = 0
 all_cases = 0
-for sample in np_data[:]:
+for sample in np_data[:1]:
     result = nn.feedforward(sample)
     prediction = np.argmax(result)
     expected = sample[0].astype(int)
