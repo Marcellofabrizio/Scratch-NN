@@ -20,16 +20,16 @@ nn = Network([20, 13, 6])
 np_data = data.to_numpy()
 positives = 0
 all_cases = 0
-for sample in np_data[:1]:
-    result = nn.feedforward(sample)
-    prediction = np.argmax(result)
-    expected = sample[0].astype(int)
-    expected_neurons = np.zeros(6)
-    expected_neurons[expected-1] = 1
-    nn.backprop(result, expected_neurons)
-    if prediction == expected:
-        positives += 1
-    all_cases += 1
+for _ in range(500):
+    for sample in np_data:
+        result = nn.feedforward(sample)
+        prediction = np.argmax(result)
+        expected = sample[0].astype(int)
+        expected_neurons = np.zeros(6)
+        expected_neurons[expected-1] = 1
+        nn.backprop(result, expected_neurons)
+        if prediction == expected:
+            positives += 1
+        all_cases += 1
 
-print("Positives", positives)
-print("All cases", all_cases)
+print("Positives", positives/all_cases)
