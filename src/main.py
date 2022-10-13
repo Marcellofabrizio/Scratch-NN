@@ -12,24 +12,18 @@ mapping = {
     'PATH': 5,
     'GRASS': 6
 }
-data = pd.read_csv('../data/segmentation.test', ',')
-data['LABEL'] = [mapping[item] for item in data['LABEL']]
+data = pd.read_csv('../data/dados-train.csv', ',')
+data['CLASS'] = [mapping[item] for item in data['CLASS']]
 
-nn = Network([20, 13, 6])
+nn = Network([19, 13, 6], 0.2, 0.9)
 
-np_data = data.to_numpy()
 positives = 0
 all_cases = 0
-for _ in range(500):
-    for sample in np_data:
-        result = nn.feedforward(sample)
-        prediction = np.argmax(result)
-        expected = sample[0].astype(int)
-        expected_neurons = np.zeros(6)
-        expected_neurons[expected-1] = 1
-        nn.backprop(result, expected_neurons)
-        if prediction == expected:
-            positives += 1
-        all_cases += 1
 
-print("Positives", positives/all_cases)
+data = data.to_numpy()
+for _ in range(1):
+    for sample in data[:20]:
+        result = nn.feedforward(sample)
+        print("Result: ", result)
+        print(sample[0])
+        nn.backprop(result)
