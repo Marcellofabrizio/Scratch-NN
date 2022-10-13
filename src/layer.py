@@ -18,6 +18,9 @@ class InputLayer():
     def calculate_error(self):
         pass
 
+    def update_weights(self, learning_rate, momentum):
+        pass
+
 
 class HiddenLayer():
 
@@ -31,17 +34,12 @@ class HiddenLayer():
         self.w = np.random.randn(num_neurons, prev_layer.size)
 
     def synapse(self):
-        print(self.w.shape)
-        print(self.z.shape)
         dot_prod = np.dot(self.w, self.prev_layer.z)
         self.z = sigmoid(dot_prod)
-        print("Formato Z: %d" % self.z.shape)
         self.next_layer.synapse()
 
     def calculate_error(self):
         next_layer_error = self.next_layer.error
-        print(next_layer_error.shape)
-        print(np.transpose(self.next_layer.w).shape)
         error_factor = np.dot(np.transpose(self.next_layer.w), next_layer_error)
         self.error = self.z*(1-self.z)*error_factor
 
@@ -53,9 +51,9 @@ class HiddenLayer():
         # como valor para encontrar novo minimo global
         self.w = self.w * momentum
         tmp = np.tile(self.prev_layer.z, (self.error.size, 1))
-        tmp = np.transpose(tmp).dot(np.diag(self.error))*learning_rate
-        self.w = np.add(self.w, tmp)
-        self.prev_layer.update_weights()
+        tmp = np.dot(np.diag(self.error), tmp)*learning_rate
+        self.w = np.add(tmp, self.w)
+        self.prev_layer.update_weights(learning_rate, momentum)
 
 
 class OutputLayer():
@@ -69,11 +67,8 @@ class OutputLayer():
         self.w = np.random.randn(num_neurons, prev_layer.size)
 
     def synapse(self):
-        print(self.w.shape)
-        print(self.z.shape)
         dot_prod = np.dot(self.w, self.prev_layer.z)
         self.z = sigmoid(dot_prod)
-        print("Formato Z: %d" % self.z.shape)
 
     def calculate_error(self, expected, learning_rate, momentum):
         self.error = self.z*(1-self.z)*(expected-self.z)
@@ -82,9 +77,7 @@ class OutputLayer():
 
     def update_weights(self, learning_rate, momentum):
         self.w = self.w * momentum
-        print(self.w.shape)
-        print(self.z.shape)
         tmp = np.tile(self.prev_layer.z, (self.error.size, 1))
-        tmp = np.transpose(tmp).dot(np.diag(self.error))*learning_rate
-        self.w = np.add(self.w, tmp)
-        self.prev_layer.update_weights()
+        tmp = np.dot(np.diag(self.error), tmp)*learning_rate
+        self.w = np.add(tmp, self.w)
+        self.prev_layer.update_weights(learning_rate, momentum)

@@ -21,9 +21,15 @@ positives = 0
 all_cases = 0
 
 data = data.to_numpy()
-for _ in range(1):
-    for sample in data[:20]:
+for _ in range(100):
+    for sample in data:
         result = nn.feedforward(sample)
-        print("Result: ", result)
-        print(sample[0])
         nn.backprop(result)
+        expected = sample[0]
+        if result == expected:
+            positives += 1
+        
+        all_cases += 1
+
+print(positives)
+print(all_cases)
