@@ -15,6 +15,9 @@ class InputLayer():
     def synapse(self):
         self.next_layer.synapse()
 
+    def calculate_error(self):
+        pass
+
 
 class HiddenLayer():
 
@@ -38,8 +41,8 @@ class HiddenLayer():
     def calculate_error(self):
         next_layer_error = self.next_layer.error
         print(next_layer_error.shape)
-        print(self.w.shape)
-        error_factor = np.dot(next_layer_error, np.transpose(self.w))
+        print(np.transpose(self.next_layer.w).shape)
+        error_factor = np.dot(np.transpose(self.next_layer.w), next_layer_error)
         self.error = self.z*(1-self.z)*error_factor
 
         # chama chamada para correção do erro da camada anterior
@@ -79,6 +82,8 @@ class OutputLayer():
 
     def update_weights(self, learning_rate, momentum):
         self.w = self.w * momentum
+        print(self.w.shape)
+        print(self.z.shape)
         tmp = np.tile(self.prev_layer.z, (self.error.size, 1))
         tmp = np.transpose(tmp).dot(np.diag(self.error))*learning_rate
         self.w = np.add(self.w, tmp)
