@@ -12,24 +12,34 @@ mapping = {
     'PATH': 5,
     'GRASS': 6
 }
-data = pd.read_csv('../data/dados-train.csv', ',')
+data = pd.read_csv('../data/dados-test.csv', ',')
 data['CLASS'] = [mapping[item] for item in data['CLASS']]
 
-nn = Network([19, 13, 6], 0.2, 0.9)
+test_data = pd.read_csv('../data/dados-train.csv', ',')
+test_data['CLASS'] = [mapping[item] for item in test_data['CLASS']]
+
+
+nn = Network([18, 13, 7], 0.2, 0.9)
 
 positives = 0
 all_cases = 0
 
 data = data.to_numpy()
-for _ in range(100):
+test_data = test_data.to_numpy()
+for _ in range(200):
     for sample in data:
-        result = nn.feedforward(sample)
-        nn.backprop(result)
-        expected = sample[0]
-        if result == expected:
-            positives += 1
+        result = nn.feedforward(sample[1:])
+#         print("Resultado", result)
+#         nn.backprop(result)
+#         expected = sample[0]
+#         print("Esperado", expected)
         
-        all_cases += 1
-
-print(positives)
-print(all_cases)
+# for sample in test_data:
+#     result = nn.feedforward(sample[1:])
+#     expected = sample[0]
+#     if result == expected:
+#         positives += 1
+#     all_cases += 1
+        
+# print(positives)
+# print(all_cases)
