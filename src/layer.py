@@ -1,3 +1,4 @@
+from time import sleep
 import numpy as np
 from abc import ABCMeta, abstractmethod
 
@@ -35,7 +36,6 @@ class HiddenLayer():
     def synapse(self):
         dot_prod = np.dot(self.w, self.prev_layer.z)
         self.z = sigmoid(dot_prod)
-        print(self.z)
         self.next_layer.synapse()
 
     def calculate_error(self):
@@ -74,5 +74,5 @@ class OutputLayer():
         self.w = self.w * momentum
         for i in range(self.size):
             tmp = self.prev_layer.z * self.error[i] * learning_rate
-            self.w[i] = self.w[i] + tmp
+            self.w[i] = np.add(self.w[i], tmp)
         self.prev_layer.update_weights(learning_rate, momentum)
