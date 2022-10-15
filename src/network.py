@@ -29,4 +29,5 @@ class Network:
     def backprop(self, expected_neuron):
         expected_output = np.zeros(self.output_layer.size)
         expected_output[expected_neuron] = 1
+        # print("Expected output: ", expected_output)
         self.output_layer.calculate_error(expected_output, self.lr, self.momentum)

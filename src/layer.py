@@ -40,7 +40,8 @@ class HiddenLayer():
 
     def calculate_error(self):
         next_layer_error = self.next_layer.error
-        error_factor = np.dot(np.transpose(self.next_layer.w), next_layer_error)
+        error_factor = np.dot(np.transpose(
+            self.next_layer.w), next_layer_error)
         self.error = self.z*(1-self.z)*error_factor
         self.prev_layer.calculate_error()
 
