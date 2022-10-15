@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from network import Network
 
@@ -12,42 +13,50 @@ mapping = {
     'PATH': 5,
     'GRASS': 6
 }
-data = pd.read_csv('../data/train.csv', ',')
-data['CLASS'] = [mapping[item] for item in data['CLASS']]
+train_data = pd.read_csv('/home/marcello/Repositories/scratch-neural-net/data/train.csv', ',')
+train_data['CLASS'] = [mapping[item] for item in train_data['CLASS']]
 
-test_data = pd.read_csv('../data/test.csv', ',')
+test_data = pd.read_csv('/home/marcello/Repositories/scratch-neural-net/data/test.csv', ',')
 test_data['CLASS'] = [mapping[item] for item in test_data['CLASS']]
 
 
-nn = Network([18, 13, 7], 0.01, 0.01)
+nn = Network([18, 13, 13, 7], 1, 1)
 
 positives = 0
 all_cases = 0
 positives_train = 0
 all_cases_train = 0
 
-data = data.to_numpy()
+train_data = train_data.to_numpy()
 test_data = test_data.to_numpy()
-print(data[0])
-for _ in range(200):
-    for sample in data:
+print(train_data[0])
+
+cf_matrix = np.zeros((7,7))
+
+for epoch in range(200):
+    for sample in train_data:
+        expected_output = int(sample[0])
         result = nn.feedforward(sample[1:])
-        nn.backprop(int(sample[0]))
-
-        if result == int(sample[0]):
+        nn.backprop(expected_output)
+        
+        if result == expected_output:
             positives_train += 1
-
         all_cases_train += 1
         
 print(positives_train)
 print(all_cases_train)
 
 for sample in test_data:
+    expected_output = int(sample[0])
     result = nn.feedforward(sample[1:])
-    expected = int(sample[0])
-    if result == expected:
+    cf_matrix[expected_output, result] += 1
+    
+    if result == expected_output:
         positives += 1
     all_cases += 1
+    
+    cf_matrix[expected_output, result] += 1
         
 print(positives)
 print(all_cases)
+print(cf_matrix)

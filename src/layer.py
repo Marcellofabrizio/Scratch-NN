@@ -52,7 +52,6 @@ class HiddenLayer():
             self.w[i] = self.w[i] + tmp
         self.prev_layer.update_weights(learning_rate, momentum)
 
-
 class OutputLayer():
 
     def __init__(self, num_neurons, prev_layer):
