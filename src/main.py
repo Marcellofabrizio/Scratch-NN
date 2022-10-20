@@ -20,7 +20,7 @@ test_data = pd.read_csv('/home/marcello/Repositories/scratch-neural-net/data/tes
 test_data['CLASS'] = [mapping[item] for item in test_data['CLASS']]
 
 
-nn = Network([18, 13, 13, 7], 1, 1)
+nn = Network([18, 14, 7], 1, 1)
 
 positives = 0
 all_cases = 0
@@ -42,14 +42,13 @@ for epoch in range(200):
         if result == expected_output:
             positives_train += 1
         all_cases_train += 1
-        
+
 print(positives_train)
 print(all_cases_train)
 
 for sample in test_data:
     expected_output = int(sample[0])
     result = nn.feedforward(sample[1:])
-    cf_matrix[expected_output, result] += 1
     
     if result == expected_output:
         positives += 1
@@ -60,3 +59,8 @@ for sample in test_data:
 print(positives)
 print(all_cases)
 print(cf_matrix)
+
+# def print_confusion_matrix(confusion_matrix, class_dict):
+#     for i in range(len(confusion_matrix)):
+#         print(confusion_matrix[i])
+#         for j in range(len(confusion_matrix[i])):
