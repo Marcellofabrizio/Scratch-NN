@@ -1,3 +1,5 @@
+import threading
+import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -15,42 +17,65 @@ mapping = {
     'GRASS': 6
 }
 
-train_data = pd.read_csv(
-    '/home/marcello/Repositories/scratch-neural-net/data/train.csv', ',')
-train_data['CLASS'] = [mapping[item] for item in train_data['CLASS']]
 
-test_data = pd.read_csv(
-    '/home/marcello/Repositories/scratch-neural-net/data/test.csv', ',')
-test_data['CLASS'] = [mapping[item] for item in test_data['CLASS']]
+def execute(train_data, test_data, mapping, nn_layers, learning_rate, momentum, epochs):
 
+    nn = Network(nn_layers, learning_rate, momentum)
+    cf_matrix = np.zeros((7, 7))
+    errors = list() 
 
-nn = Network([18, 14, 7], 1, 1)
+    for _ in range(epochs):
+        for sample in train_data:
+            expected_output = int(sample[0])
+            result = nn.feedforward(sample[1:])
+            nn.backprop(expected_output)
+        
+        errors.append(np.sum(np.absolute(nn.output_layer.error)))
+    print(errors)
 
-train_data = train_data.to_numpy()
-test_data = test_data.to_numpy()
-
-cf_matrix = np.zeros((7, 7))
-
-for epoch in range(100):
-    for sample in train_data:
+    for sample in test_data:
         expected_output = int(sample[0])
         result = nn.feedforward(sample[1:])
-        nn.backprop(expected_output)
 
-for sample in test_data:
-    expected_output = int(sample[0])
-    result = nn.feedforward(sample[1:])
+        cf_matrix[expected_output, result] += 1
 
-    cf_matrix[expected_output, result] += 1
+    cf_matrix = cf_matrix.astype(int)
 
-cf_matrix = cf_matrix.astype(int)
+    print(f"Resultados para treinamento com {epochs} épocas")
+    print_metrics(cf_matrix, mapping)
 
-print_metrics(cf_matrix, mapping)
 
-# confusion_matrix = np.array([[29.,  0.,  0.,  1.,  0.,  0.,  0.],
-#                              [0., 30.,  0.,  0.,  0.,  0.,  0.],
-#                              [0.,  0., 18.,  1., 11.,  0.,  0.],
-#                              [0.,  0.,  0., 29.,  1.,  0.,  0.],
-#                              [0.,  0.,  0.,  4., 26.,  0.,  0.],
-#                              [3.,  0.,  0.,  0.,  0., 27.,  0.],
-#                              [0.,  0.,  0.,  0.,  0.,  0., 30.]])
+if __name__ == '__main__':
+
+    threads = list()
+
+    nn_layers = [18, 14, 7]
+    epochs = [100, 200, 500, 600]
+    leanlearning_rate = 1
+    momentum = 1
+
+    train_data = pd.read_csv(
+        '/home/marcello/Repositories/scratch-neural-net/data/train.csv', ',')
+    train_data['CLASS'] = [mapping[item] for item in train_data['CLASS']]
+
+    test_data = pd.read_csv(
+        '/home/marcello/Repositories/scratch-neural-net/data/test.csv', ',')
+    test_data['CLASS'] = [mapping[item] for item in test_data['CLASS']]
+
+    train_data = train_data.to_numpy()
+    test_data = test_data.to_numpy()
+
+    execute(train_data, test_data, mapping, [18, 14, 7], 1, 1, 600)
+    # for i in range(4):
+
+    #     logging.info(f"Main: criando e iniciando thread {i}")
+    #     x = threading.Thread(target=execute, args=(
+    #         train_data, test_data, mapping, [18, 14, 7], 1, 1, epochs[i],))
+    #     threads.append(x)
+    #     x.start()
+
+    # for i, thread in enumerate(threads):
+    #     logging.info(f"Main: Encerrando thread {i}")
+    #     thread.join()
+    #     logging.info(f"Main: Thread {i} encerrada")
+
