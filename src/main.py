@@ -3,6 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from datetime import datetime
 
 from network import Network
 from metrics import print_metrics
@@ -22,16 +23,23 @@ def execute(train_data, test_data, mapping, nn_layers, learning_rate, momentum, 
 
     nn = Network(nn_layers, learning_rate, momentum)
     cf_matrix = np.zeros((7, 7))
-    errors = list() 
+    errors = list()
+    epoch_list = list()
 
-    for _ in range(epochs):
+    for epoch in range(epochs):
         for sample in train_data:
             expected_output = int(sample[0])
             result = nn.feedforward(sample[1:])
             nn.backprop(expected_output)
-        
+
         errors.append(np.sum(np.absolute(nn.output_layer.error)))
+        epoch_list.append(epoch)
     print(errors)
+    plt.plot(epoch_list, errors)
+    plt.xlabel("Épocas")
+    plt.ylabel("Erro médio")
+    plt.savefig(
+        f"../plots/mean_error_{epochs}_epochs_{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.png")
 
     for sample in test_data:
         expected_output = int(sample[0])
@@ -65,7 +73,7 @@ if __name__ == '__main__':
     train_data = train_data.to_numpy()
     test_data = test_data.to_numpy()
 
-    execute(train_data, test_data, mapping, [18, 14, 7], 1, 1, 600)
+    execute(train_data, test_data, mapping, [18, 14, 7], 0.2, 1, 200)
     # for i in range(4):
 
     #     logging.info(f"Main: criando e iniciando thread {i}")
@@ -78,4 +86,3 @@ if __name__ == '__main__':
     #     logging.info(f"Main: Encerrando thread {i}")
     #     thread.join()
     #     logging.info(f"Main: Thread {i} encerrada")
-
